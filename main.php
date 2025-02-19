@@ -14,6 +14,15 @@ require_once __DIR__ . '/google-api/vendor/autoload.php';
 
 function google_calendar_add_event($post_id)
 {
+    try {
+        google_calendar_add_event_impl($post_id);
+    } catch (Exception $e) {
+        #print $e -> getMessage();
+   	custom_log($e -> getMessage());
+    }
+}	
+function google_calendar_add_event_impl($post_id)
+{
     custom_log("Debugging started...");
     if (get_post_meta($post_id, '_google_event_created', true)) {
         return;
