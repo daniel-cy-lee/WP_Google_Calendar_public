@@ -48,6 +48,10 @@ function google_calendar_add_event($post_id)
     $post_url = get_permalink($post_id);
     $content = normalize_string($post_url . "\n\n" . $content, $date);
     $description = substr($content, 0, 500);
+    custom_log("to utf8...");
+    #$description = mb_convert_encoding($description, 'UTF-8', 'auto');
+    custom_log("utf8 converted");
+    #$description = $data;
     #$description = $post_url;
 
     $event = new Google_Service_Calendar_Event([
@@ -81,11 +85,18 @@ function custom_log($message)
 }
 function normalize_string($text)
 {
+    custom_log("detect_encoding" . detect_encoding($text));
     // Remove non-printable characters manually
     #$text = preg_replace('/[\x00-\x1F\x7F]/u', ' ', $text); // Control characters
     #$text = preg_replace('/\s+/u', ' ', $text); // Extra spaces
-    $text = preg_replace('/時間.*/', '2025-3', $text);
+    #$text = preg_replace('/時間.*/', '2025-3', $text);
     return trim($text);
+}
+function detect_encoding($string) {
+    if (preg_match('//u', $string)) {
+        return 'UTF-8';
+    }
+    return 'ISO-8859-1';
 }
 
 function extract_event_date($content)

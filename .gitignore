@@ -2,3 +2,4 @@ service-account.json
 debug.log
 test2.php
 output.bin
+*.tmp
