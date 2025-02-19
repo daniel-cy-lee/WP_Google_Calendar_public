@@ -26,8 +26,15 @@ function google_calendar_add_event($post_id)
 
     $title = $post->post_title;
     $content = wp_strip_all_tags($post->post_content);
-    $date = get_the_date('Y-m-d', $post_id);
+    custom_log("Debugging get the date...");
+    $date = extract_event_date($content);
+    if (!$date) {
+        custom_log("Using post date instead.");
+        $date = get_the_date('Y-m-d', $post_id);
+        $title = "時間待確認" . $title;
+    }
 
+    custom_log("get_the_date:". $date);
     $client = new Google_Client();
     $client->setAuthConfig(__DIR__ . '/service-account.json');
     $client->addScope(Google_Service_Calendar::CALENDAR_EVENTS);
@@ -62,6 +69,52 @@ function custom_log($message)
     file_put_contents($log_file, date("[Y-m-d H:i:s] ") . $message . PHP_EOL, FILE_APPEND);
 }
 
+function extract_event_date($content)
+{
+    custom_log("Extracting date from content...");
+
+    // Match Chinese date pattern: "時間：一百一十四年三月十五日"
+    if (preg_match('/時間：([一二三四五六七八九十百零]+)年([一二三四五六七八九十]+)月([一二三四五六七八九十]+)日/', $content, $matches)) {
+
+        $minguo_year = chinese_to_number(trim($matches[1])); // Convert to number
+
+        $year = $minguo_year + 1911; // Convert Minguo year to Gregorian
+        $month = chinese_to_number(trim($matches[2]));
+        $day = chinese_to_number(trim($matches[3]));
+
+        $date = sprintf('%04d-%02d-%02d', $year, $month, $day);
+        return $date;
+    }
+
+    custom_log("❌ No valid date found in content.");
+    return null;
+}
+
+function chinese_to_number($chinese)
+{
+    $map = [
+        '零' => 0, '一' => 1, '二' => 2, '三' => 3, '四' => 4,
+        '五' => 5, '六' => 6, '七' => 7, '八' => 8, '九' => 9,
+        '十' => 10, '百' => 100
+    ];
+
+    $number = 0;
+    $temp = 0;
+    foreach (preg_split('//u', $chinese, -1, PREG_SPLIT_NO_EMPTY) as $char) {
+        if ($char == '十') {
+            $temp = $temp == 0 ? 10 : $temp * 10;
+        } elseif ($char == '百') {
+            $temp *= 100;
+        } else {
+            $temp += $map[$char];
+        }
+        if ($temp >= 10) {
+            $number += $temp;
+            $temp = 0;
+        }
+    }
+    return $number + $temp;
+}
 add_action('publish_post', 'google_calendar_add_event');
 
 ?>
