@@ -47,12 +47,7 @@ function google_calendar_add_event($post_id)
     custom_log( date('Y-m-d', strtotime($date . ' +1 day')));
     $post_url = get_permalink($post_id);
     $content = normalize_string($post_url . "\n\n" . $content, $date);
-    $description = substr($content, 0, 500);
-    custom_log("to utf8...");
-    #$description = mb_convert_encoding($description, 'UTF-8', 'auto');
-    custom_log("utf8 converted");
-    #$description = $data;
-    #$description = $post_url;
+    $description = substr($content, 0, 5000);
 
     $event = new Google_Service_Calendar_Event([
         'summary' => $title,
