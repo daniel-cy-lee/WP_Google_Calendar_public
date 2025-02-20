@@ -49,7 +49,7 @@ function google_calendar_add_event_impl($post_id)
     $client->addScope(Google_Service_Calendar::CALENDAR_EVENTS);
 
     $service = new Google_Service_Calendar($client);
-    $description = $content;
+    $description = $content . "\n\n樂山水公告：https://www.landscape.url.tw/\n臉書：https://www.facebook.com/groups/landscape.foremosa/events";
 
     $event = new Google_Service_Calendar_Event([
         'summary' => $title,
