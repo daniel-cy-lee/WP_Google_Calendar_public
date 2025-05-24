@@ -5,6 +5,7 @@
  * Version: 1.0
  * Author:Daniel 
  */
+//for debug
 //echo(chinese_to_number("一百一十四"));
 //echo("0:".extract_event_date("時間：一百一十四年三月十五日")."\n");
 //echo("1:".extract_event_date("時間:115年35月十五日")."\n");
@@ -64,10 +65,11 @@ function google_calendar_add_event_impl($post_id)
     custom_log("+insert event to" .$calendarId);
     try {
         $event = $service->events->insert($calendarId, $event);
+        custom_log("sucess");
     }
     catch (Exception $e) {
         print $e -> getMessage();
-	custom_log($e -> getMessage());
+        custom_log($e -> getMessage());
     }
     custom_log("done");
     #$event = $service->events->insert($calendarId, $event);
