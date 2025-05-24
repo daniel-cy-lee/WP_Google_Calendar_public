@@ -5,7 +5,9 @@
  * Version: 1.0
  * Author:Daniel 
  */
-
+//echo(chinese_to_number("一百一十四"));
+//echo("0:".extract_event_date("時間：一百一十四年三月十五日")."\n");
+//echo("1:".extract_event_date("時間:115年35月十五日")."\n");
 if (!defined('ABSPATH')) {
     exit;
 }
@@ -84,8 +86,7 @@ function extract_event_date($content)
     custom_log("Extracting date from content...");
 
     // Match Chinese date pattern: "時間：一百一十四年三月十五日"
-    if (preg_match('/時間[：|:]([一二三四五六七八九十百零|0-9]+)年([一二三四五六七八九十|0-9]+)月([一二三四五六七八九十|0-9]+)日/', $content, $matches)) {
-
+    if (preg_match('/時間(?:：|:)([一二三四五六七八九十百零0-9]+)年([一二三四五六七八九十0-9]+)月([一二三四五六七八九十0-9]+)日/', $content, $matches)) {
         $minguo_year = mystring_to_number(trim($matches[1])); // Convert to number
 
         $year = ($minguo_year < 2000)?$minguo_year + 1911:$minguo_year; // Convert Minguo year to Gregorian
