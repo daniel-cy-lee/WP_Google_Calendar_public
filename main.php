@@ -57,8 +57,9 @@ function google_calendar_add_event_impl($post_id)
         'start' => ['date' => $date, 'timeZone' => 'Asia/Taipei'],
         'end' => ['date' => date('Y-m-d', strtotime($date . ' +1 day')), 'timeZone' => 'Asia/Taipei']
     ]);
-    custom_log("+insert event");
+    #calendar id
     $calendarId = 'dennytpe@gmail.com';
+    custom_log("+insert event to" .$calendarId);
     try {
         $event = $service->events->insert($calendarId, $event);
     }
@@ -83,13 +84,13 @@ function extract_event_date($content)
     custom_log("Extracting date from content...");
 
     // Match Chinese date pattern: "時間：一百一十四年三月十五日"
-    if (preg_match('/時間：([一二三四五六七八九十百零]+)年([一二三四五六七八九十]+)月([一二三四五六七八九十]+)日/', $content, $matches)) {
+    if (preg_match('/時間[：|:]([一二三四五六七八九十百零|0-9]+)年([一二三四五六七八九十|0-9]+)月([一二三四五六七八九十|0-9]+)日/', $content, $matches)) {
 
-        $minguo_year = chinese_to_number(trim($matches[1])); // Convert to number
+        $minguo_year = mystring_to_number(trim($matches[1])); // Convert to number
 
-        $year = $minguo_year + 1911; // Convert Minguo year to Gregorian
-        $month = chinese_to_number(trim($matches[2]));
-        $day = chinese_to_number(trim($matches[3]));
+        $year = ($minguo_year < 2000)?$minguo_year + 1911:$minguo_year; // Convert Minguo year to Gregorian
+        $month = mystring_to_number(trim($matches[2]));
+        $day = mystring_to_number(trim($matches[3]));
 
         $date = sprintf('%04d-%02d-%02d', $year, $month, $day);
         return $date;
@@ -99,6 +100,15 @@ function extract_event_date($content)
     return null;
 }
 
+function mystring_to_number($value)
+{
+    if(is_numeric($value))
+    {
+        return (int)$value;
+    } else {
+        return chinese_to_number($value);
+    }
+}
 function chinese_to_number($chinese)
 {
     $map = [
